@@ -12,3 +12,13 @@ jobs:
     steps:
       - name: Run a one-line script
         run: echo Hello, world!
+
+      - name: Checkout private tools
+        uses: actions/checkout@master
+        with:
+          repository: JordanKikleo/child_repo
+          ssh-key: ${{ secrets.AUTH_TOKEN }}
+
+      - name: List files
+        run: |
+          ls
