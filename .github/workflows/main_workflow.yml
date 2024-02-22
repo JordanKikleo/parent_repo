@@ -3,8 +3,12 @@
 name: CI
 
 on:
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
 
+  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,11 +18,21 @@ jobs:
         run: echo Hello, world!
 
       - name: Checkout private tools
-        uses: actions/checkout@master
+        uses: actions/checkout@v3
         with:
           repository: JordanKikleo/child_repo
-          ssh-key: ${{ secrets.AUTH_TOKEN }}
+          ssh-key: ${{ secrets.CHILD_COMMIT_KEY }}
+          path: ./child_repo
+
 
       - name: List files
         run: |
           ls
+
+      - name: Get latest tag
+        run: |
+          cd child_repo
+          echo "TAG=$(git tag --sort=-version:refname | head -n 1 || echo 'v1.0.0')" >> $GITHUB_ENV
+
+      - name: Display latest tag
+        run: echo "Latest tag is ${{ env.TAG }}"
