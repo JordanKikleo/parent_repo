@@ -3,11 +3,14 @@
 name: CI
 
 on:
-  push:
-    tags:
-      - '*'
   workflow_dispatch:
-
+    inputs:
+      branche:
+        description: 'Branche'
+        required: true
+      commit:
+        description: 'Commit'
+        required: true
   
 jobs:
   build:
@@ -22,16 +25,24 @@ jobs:
         with:
           repository: JordanKikleo/child_repo
           ssh-key: ${{ secrets.CHILD_COMMIT_KEY }}
-          path: ./child_repo
+          fetch-depth: 0
+          path: child_repo
 
+      - name: Handle trigger
+        run: |
+          echo "Branch: ${{ github.event.inputs.branche }}"
+          echo "Commit: ${{ github.event.inputs.commit }}"
+
+      - name: Move child_repo directory
+        run: mv child_repo ../
 
       - name: List files
         run: |
-          ls
+          ls ..
 
       - name: Get latest tag
         run: |
-          cd child_repo
+          cd ../child_repo
           echo "TAG=$(git tag --sort=-version:refname | head -n 1 || echo 'v1.0.0')" >> $GITHUB_ENV
 
       - name: Display latest tag
