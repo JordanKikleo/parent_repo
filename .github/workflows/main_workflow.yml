@@ -17,8 +17,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Get Tags from GitHub API
+        id: get_tags
+        run: |
+          TAGS_JSON=$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${{ secrets.DEVICE_TOKEN }}" \
+                      https://api.github.com/repos/${{ github.repository }}/git/matching-refs/tags)
+          latest_tag=$(echo "$TAGS_JSON" | jq -r '.[].ref' | awk -F '/' '{print $NF}' | grep -v "-" | tail -n 1)
+          echo "Latest Tag is $latest_tag"
+          echo "Latest Tag is $TAGS_JSON"
 
       - name: Checkout private tools
         uses: actions/checkout@v3
